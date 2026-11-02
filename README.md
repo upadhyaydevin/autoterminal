@@ -1,4 +1,4 @@
-# TermPilot
+# AutoTerminal
 
 Inline command suggestions for Zsh, ranked from your own shell history, all
 on your machine.
