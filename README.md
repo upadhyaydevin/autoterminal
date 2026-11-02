@@ -3,7 +3,7 @@
 Inline command suggestions for Zsh, ranked from your own shell history, all
 on your machine.
 
-As you type, TermPilot shows the most likely completion as dimmed ghost text.
+As you type, AutoTerminal shows the most likely completion as dimmed ghost text.
 Press **→** (or **Ctrl-E**) to accept it into the command line. It is never
 run for you; you still press Enter.
 
@@ -17,7 +17,7 @@ $ kgp█  → kubectl get pods -n staging           ← fuzzy match, shown in fu
 - **Ranks, not just recalls.** Suggestions combine match quality (prefix,
   token prefix such as `g ch ma`, or fuzzy such as `kgp`), recency, frequency,
   and how often you ran the command *in the current directory*. Every
-  suggestion can be explained: `termpilot suggest --explain "git ch"`.
+  suggestion can be explained: `AutoTerminal suggest --explain "git ch"`.
 - **Local and private.** No network access, no telemetry. History is read,
   never modified, and the index is a private (`0600`) SQLite file you can
   delete at any time.
@@ -34,7 +34,7 @@ $ kgp█  → kubectl get pods -n staging           ← fuzzy match, shown in fu
 - Accept with Right arrow, Ctrl-F, Ctrl-E, or End (cursor at end of line).
   End works where it is bound to `end-of-line`, as macOS's default
   `/etc/zshrc` does. Turn suggestions off and on per shell with
-  `termpilot_disable` / `termpilot_enable`.
+  `AutoTerminal_disable` / `AutoTerminal_enable`.
 - Robust parser for zsh history: EXTENDED_HISTORY timestamps, multi-line
   commands, zsh's "metafied" non-ASCII encoding, malformed lines.
 - SQLite index with incremental refresh after each command, recovery from a
@@ -67,53 +67,53 @@ More detail: [docs/design-decisions.md](docs/design-decisions.md#known-limitatio
 
 ## Installation
 
-TermPilot is not on PyPI. Install it from a clone into its own virtual
+AutoTerminal is not on PyPI. Install it from a clone into its own virtual
 environment:
 
 ```bash
-git clone https://github.com/upadhyaydevin/termpilot.git
-cd termpilot
+git clone https://github.com/upadhyaydevin/AutoTerminal.git
+cd AutoTerminal
 python3 -m venv .venv
 .venv/bin/pip install .
-.venv/bin/termpilot index          # import your existing history (one-off)
+.venv/bin/AutoTerminal index          # import your existing history (one-off)
 ```
 
 With [pipx](https://pipx.pypa.io) you can run `pipx install .` instead, which
-puts `termpilot` on your PATH.
+puts `AutoTerminal` on your PATH.
 
 ### Enable it in zsh (opt-in)
 
-TermPilot never edits your shell config unless you ask. Choose one:
+AutoTerminal never edits your shell config unless you ask. Choose one:
 
 **A. Add the snippet yourself (recommended).** Print it:
 
 ```bash
-.venv/bin/termpilot init zsh
+.venv/bin/AutoTerminal init zsh
 ```
 
 and paste the output at the end of `~/.zshrc`. It looks like:
 
 ```zsh
-# >>> termpilot >>>
-TERMPILOT_BIN='/path/to/termpilot/.venv/bin/termpilot'
-source '/path/to/termpilot/src/termpilot/shell/termpilot.zsh'
-# <<< termpilot <<<
+# >>> AutoTerminal >>>
+AutoTerminal_BIN='/path/to/AutoTerminal/.venv/bin/AutoTerminal'
+source '/path/to/AutoTerminal/src/AutoTerminal/shell/AutoTerminal.zsh'
+# <<< AutoTerminal <<<
 ```
 
 **B. Let the installer do it.** It shows the block, asks for confirmation,
-backs up `.zshrc` (as `.zshrc.termpilot-backup-<timestamp>`), and appends
+backs up `.zshrc` (as `.zshrc.AutoTerminal-backup-<timestamp>`), and appends
 only that marked block. Symlinked dotfiles stay symlinks.
 
 ```bash
-.venv/bin/termpilot install-zsh
+.venv/bin/AutoTerminal install-zsh
 ```
 
-Open a new terminal, or run `exec zsh`. Then run `termpilot doctor` to check
+Open a new terminal, or run `exec zsh`. Then run `AutoTerminal doctor` to check
 the setup.
 
 **Try it without touching your config:** `scripts/demo.sh --live` opens a
 throwaway zsh with a synthetic history and the widget loaded. Set
-`TERMPILOT_BIN=.venv/bin/termpilot` if `termpilot` isn't on your PATH.
+`AutoTerminal_BIN=.venv/bin/AutoTerminal` if `AutoTerminal` isn't on your PATH.
 
 ## Usage
 
@@ -124,29 +124,29 @@ In the shell:
 | type normally | the best suggestion appears as dimmed text |
 | **→**, **Ctrl-F**, **Ctrl-E**, **End** at end of line | accept it into the command line (not run) |
 | keep typing / Backspace | suggestion updates or disappears |
-| `termpilot_disable` / `termpilot_enable` | turn suggestions off/on in this shell |
+| `AutoTerminal_disable` / `AutoTerminal_enable` | turn suggestions off/on in this shell |
 
 From the CLI (handy for debugging the ranking):
 
 ```console
-$ termpilot suggest "git ch"
+$ AutoTerminal suggest "git ch"
 git checkout main
 git checkout -b feature/search-ranking
 git commit -m 'Add ranking weights'
 
-$ termpilot suggest --explain "git ch"
+$ AutoTerminal suggest --explain "git ch"
 0.597  git checkout main    [prefix; match=1.00 recency=0.05 frequency=0.24 context=0.00]
 0.583  git checkout -b feature/search-ranking    [prefix; match=1.00 recency=0.05 frequency=0.15 context=0.00]
 0.207  git commit -m 'Add ranking weights'    [fuzzy; match=0.32 recency=0.05 frequency=0.15 context=0.00]
 
-$ termpilot suggest kgp
+$ AutoTerminal suggest kgp
 kubectl get pods -n staging
 
-$ termpilot suggest --format json -n 3 "docker"     # machine-readable
-$ termpilot index                                     # refresh now (runs automatically after each command)
-$ termpilot index --rebuild                           # start the index from scratch
-$ termpilot stats                                     # counts only, never command text
-$ termpilot doctor                                    # check config, history, index, zsh setup
+$ AutoTerminal suggest --format json -n 3 "docker"     # machine-readable
+$ AutoTerminal index                                     # refresh now (runs automatically after each command)
+$ AutoTerminal index --rebuild                           # start the index from scratch
+$ AutoTerminal stats                                     # counts only, never command text
+$ AutoTerminal doctor                                    # check config, history, index, zsh setup
 ```
 
 The output above is from `scripts/demo.sh`, which uses a synthetic history.
@@ -158,16 +158,16 @@ unexpected error (rerun with `--debug` for a traceback).
 ## Configuration and data locations
 
 Everything is optional. Settings live in
-`~/.config/termpilot/config.toml` (or `$XDG_CONFIG_HOME/termpilot/config.toml`):
+`~/.config/AutoTerminal/config.toml` (or `$XDG_CONFIG_HOME/AutoTerminal/config.toml`):
 
 ```toml
 history_path = "~/.zsh_history"   # default: $HISTFILE, else ~/.zsh_history
-# data_dir = "~/Library/Application Support/termpilot"
+# data_dir = "~/Library/Application Support/AutoTerminal"
 context = true                     # record the directory each command runs in
 
 [ranking]
 min_input_length = 2       # shorter input gets no suggestions
-max_suggestions = 5        # results from `termpilot suggest`
+max_suggestions = 5        # results from `AutoTerminal suggest`
 weight_match = 0.55
 weight_recency = 0.20
 weight_frequency = 0.15
@@ -177,28 +177,28 @@ recency_half_life_days = 7.0
 ```
 
 **Precedence** (highest first): CLI flags (`--history`, `--data-dir`, `-n`),
-then environment variables (`TERMPILOT_CONFIG`, `TERMPILOT_HISTORY`,
-`TERMPILOT_DATA_DIR`), then the config file, then defaults. Unknown keys and
+then environment variables (`AutoTerminal_CONFIG`, `AutoTerminal_HISTORY`,
+`AutoTerminal_DATA_DIR`), then the config file, then defaults. Unknown keys and
 wrong types are reported as errors rather than ignored.
 
-**Shell settings** (set before the `source` line): `TERMPILOT_BIN`,
-`TERMPILOT_HIGHLIGHT` (default `fg=8`), `TERMPILOT_CONTEXT=0` to stop
-directory logging, `TERMPILOT_AUTO_INDEX=0` to stop refreshing after each
+**Shell settings** (set before the `source` line): `AutoTerminal_BIN`,
+`AutoTerminal_HIGHLIGHT` (default `fg=8`), `AutoTerminal_CONTEXT=0` to stop
+directory logging, `AutoTerminal_AUTO_INDEX=0` to stop refreshing after each
 command.
 
-**Files** (`termpilot paths` prints them):
+**Files** (`AutoTerminal paths` prints them):
 
 | File | Contents |
 |---|---|
-| `~/Library/Application Support/termpilot/index.db` | distinct commands with counts and last-used time; per-directory counts |
-| `~/Library/Application Support/termpilot/context.log` | `time<TAB>directory<TAB>command` per command run, written by the zsh hook |
+| `~/Library/Application Support/AutoTerminal/index.db` | distinct commands with counts and last-used time; per-directory counts |
+| `~/Library/Application Support/AutoTerminal/context.log` | `time<TAB>directory<TAB>command` per command run, written by the zsh hook |
 | your zsh history | read only, never modified |
 
-On Linux the data directory is `$XDG_DATA_HOME/termpilot`.
+On Linux the data directory is `$XDG_DATA_HOME/AutoTerminal`.
 
 ## Privacy and security
 
-- **No network.** TermPilot makes no network requests and has no telemetry.
+- **No network.** AutoTerminal makes no network requests and has no telemetry.
 - **Read-only history.** Your history file is opened read-only and never
   written, moved or deleted.
 - **Private files.** The data directory is `0700`, and the index and context
@@ -217,13 +217,13 @@ On Linux the data directory is `$XDG_DATA_HOME/termpilot`.
   it.
 - **Respects hidden commands.** With `HIST_IGNORE_SPACE` set, commands typed
   with a leading space are not written to the context log.
-- **Delete everything** TermPilot stored with `termpilot purge`. It does not
+- **Delete everything** AutoTerminal stored with `AutoTerminal purge`. It does not
   touch your history.
 
 ## Architecture
 
 ```
-src/termpilot/
+src/AutoTerminal/
 ├── history.py      parse zsh history + context log (read-only, streaming)
 ├── ranking.py      pure, deterministic scoring and ordering
 ├── storage.py      SQLite index: incremental refresh, bounded retrieval
@@ -231,13 +231,13 @@ src/termpilot/
 ├── cli.py          commands, exit codes, error messages
 ├── integration.py  .zshrc snippet, install / uninstall
 ├── benchmark.py    synthetic datasets and timing
-└── shell/termpilot.zsh   ZLE widget: async fetch, ghost text, accept keys,
+└── shell/AutoTerminal.zsh   ZLE widget: async fetch, ghost text, accept keys,
                           preexec context log, precmd background refresh
 ```
 
-The zsh widget runs `termpilot suggest --format inline` asynchronously on
+The zsh widget runs `AutoTerminal suggest --format inline` asynchronously on
 each edit. That command does a read-only SQLite lookup, ranks in Python, and
-prints one line. After each command, `precmd` starts `termpilot index
+prints one line. After each command, `precmd` starts `AutoTerminal index
 --quiet` in the background, which parses only the bytes appended to your
 history and context log since the last run.
 
@@ -256,7 +256,7 @@ python3 -m venv .venv
 ```
 
 All tests use synthetic data in temporary directories. An autouse fixture
-redirects `HOME`, `HISTFILE` and TermPilot's paths, so your real history is
+redirects `HOME`, `HISTFILE` and AutoTerminal's paths, so your real history is
 never read. `tests/test_zsh_integration.py` starts a real interactive zsh in
 a pseudo-terminal and checks that ghost text appears, accepting works,
 **Enter runs only the typed text**, history navigation and editing are
@@ -264,7 +264,7 @@ unaffected, and a crashing or hanging backend never blocks the shell.
 
 ## Performance
 
-Reproduce with `termpilot benchmark`. It generates seeded synthetic
+Reproduce with `AutoTerminal benchmark`. It generates seeded synthetic
 histories, so no real data is involved. Full method and tables are in
 [docs/benchmarks.md](docs/benchmarks.md).
 
@@ -288,29 +288,29 @@ end-to-end). Values are p50 / p95 in milliseconds:
 
 ## Troubleshooting
 
-Start with `termpilot doctor`.
+Start with `AutoTerminal doctor`.
 
 | Symptom | Fix |
 |---|---|
-| No ghost text at all | `termpilot doctor`; check that `termpilot index` has run and that `TERMPILOT_BIN` points at the executable (the snippet sets it) |
-| `termpilot: 'termpilot' not found` at shell start | set `TERMPILOT_BIN` to the full path before the `source` line, or rerun `termpilot init zsh` |
-| `no index at …; run termpilot index` | run `termpilot index` once; after that it refreshes automatically |
-| `cannot read index … --rebuild` | `termpilot index --rebuild` (a corrupt file is moved aside automatically) |
+| No ghost text at all | `AutoTerminal doctor`; check that `AutoTerminal index` has run and that `AutoTerminal_BIN` points at the executable (the snippet sets it) |
+| `AutoTerminal: 'AutoTerminal' not found` at shell start | set `AutoTerminal_BIN` to the full path before the `source` line, or rerun `AutoTerminal init zsh` |
+| `no index at …; run AutoTerminal index` | run `AutoTerminal index` once; after that it refreshes automatically |
+| `cannot read index … --rebuild` | `AutoTerminal index --rebuild` (a corrupt file is moved aside automatically) |
 | History file not found | set `history_path` in the config, or pass `--history`; zsh's `$HISTFILE` is used by default |
 | Suggestions are old | zsh writes history at exit unless `INC_APPEND_HISTORY` or `SHARE_HISTORY` is set; the context log covers the current session meanwhile |
-| Right arrow behaves oddly | another plugin may also wrap `forward-char`; `termpilot_disable` restores the original |
-| Ghost text hard to see | set e.g. `TERMPILOT_HIGHLIGHT='fg=244'` before sourcing |
+| Right arrow behaves oddly | another plugin may also wrap `forward-char`; `AutoTerminal_disable` restores the original |
+| Ghost text hard to see | set e.g. `AutoTerminal_HIGHLIGHT='fg=244'` before sourcing |
 
 ## Uninstall
 
 ```bash
-termpilot uninstall-zsh     # removes only the marked block (backs up .zshrc first)
-termpilot purge             # deletes index.db and context.log, not your history
+AutoTerminal uninstall-zsh     # removes only the marked block (backs up .zshrc first)
+AutoTerminal purge             # deletes index.db and context.log, not your history
 ```
 
-Then delete the cloned folder (or `pipx uninstall termpilot`). If you added
-the snippet by hand, delete the lines between `# >>> termpilot >>>` and
-`# <<< termpilot <<<` in `~/.zshrc`.
+Then delete the cloned folder (or `pipx uninstall AutoTerminal`). If you added
+the snippet by hand, delete the lines between `# >>> AutoTerminal >>>` and
+`# <<< AutoTerminal <<<` in `~/.zshrc`.
 
 ## License
 
